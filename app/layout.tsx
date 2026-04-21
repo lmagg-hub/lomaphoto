@@ -11,6 +11,8 @@ import {
 import './globals.css'
 import Analytics from '@/components/Analytics'
 import CookieBanner from '@/components/CookieBanner'
+import ScrollToTop from '@/components/ScrollToTop'
+import CustomCursor from '@/components/CustomCursor'
 
 const playfair = Playfair_Display({
   subsets: ['latin', 'latin-ext'],
@@ -147,6 +149,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <Analytics />
         <CookieBanner />
+        <ScrollToTop />
+        <CustomCursor />
       </body>
     </html>
   )

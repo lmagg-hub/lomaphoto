@@ -10,6 +10,7 @@ export interface SanityImageAsset {
     palette?: {
       dominant?: { background: string; foreground: string }
     }
+    lqip?: string
   }
 }
 

@@ -27,6 +27,7 @@ interface NormalizedImage {
   title: string
   width: number
   height: number
+  lqip?: string
 }
 
 function normalize(images: GalleryImage[]): NormalizedImage[] {
@@ -39,6 +40,7 @@ function normalize(images: GalleryImage[]): NormalizedImage[] {
       title: img.title ?? '',
       width: img.image.asset.metadata?.dimensions?.width ?? 800,
       height: img.image.asset.metadata?.dimensions?.height ?? 1000,
+      lqip: img.image.asset.metadata?.lqip,
     }))
 }
 
@@ -48,7 +50,7 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
   const normalized: NormalizedImage[] =
     images.length > 0
       ? normalize(images)
-      : DEMO_IMAGES.map((d) => ({ id: d.id, src: d.src, alt: d.alt, title: d.title, width: d.w, height: d.h }))
+      : DEMO_IMAGES.map((d) => ({ id: d.id, src: d.src, alt: d.alt, title: d.title, width: d.w, height: d.h, lqip: undefined }))
 
   const lightboxImages = normalized.map((img) => ({ src: img.src, alt: img.alt, title: img.title }))
 
@@ -82,12 +84,23 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
                 alt={img.alt}
                 width={img.width}
                 height={img.height}
+                loading="lazy"
+                placeholder={img.lqip ? 'blur' : 'empty'}
+                blurDataURL={img.lqip}
                 className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
               {/* Hover overlay */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-500 flex items-end p-5">
-                <p className="text-light text-xs tracking-widest uppercase font-sans opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-2 group-hover:translate-y-0">
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors duration-300 flex flex-col items-center justify-center gap-3">
+                {/* View larger icon */}
+                <svg
+                  width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-light"
+                >
+                  <circle cx="14" cy="14" r="13" stroke="currentColor" strokeWidth="1" />
+                  <path d="M10 14h8M14 10v8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                <p className="text-light text-xs tracking-widest uppercase font-sans opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-1 group-hover:translate-y-0">
                   {img.title}
                 </p>
               </div>
