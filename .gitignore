@@ -18,7 +18,6 @@
 *.pem
 
 # Large media files (deploy via Vercel or CDN instead)
-/public/*.mp4
 /public/*.mov
 /public/*.webm
 
