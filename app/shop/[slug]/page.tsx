@@ -28,10 +28,11 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://lomaphoto.at'
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }): Promise<Metadata> {
+  const { slug } = await params
   const product = await writeClient
-    .fetch<ShopProduct>(shopProductBySlugQuery, { slug: params.slug })
+    .fetch<ShopProduct>(shopProductBySlugQuery, { slug })
     .catch(() => null)
 
   if (!product) return { title: 'Print nicht gefunden' }
@@ -42,7 +43,7 @@ export async function generateMetadata({
 
   const prices = (product.sizes ?? []).map((s) => s.price).filter(Boolean)
   const minPrice = prices.length ? Math.min(...prices) : null
-  const canonicalUrl = `${SITE_URL}/shop/${params.slug}`
+  const canonicalUrl = `${SITE_URL}/shop/${slug}`
 
   const description = `${product.title} — Fine Art Print auf Aludibond im handgefertigten Schattenfugenrahmen aus Holz.${minPrice ? ` Ab € ${minPrice}.` : ''} Kostenloser Versand in der EU.`
 
@@ -82,9 +83,10 @@ const portableComponents = {
   },
 }
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const product = await writeClient
-    .fetch<ShopProduct>(shopProductBySlugQuery, { slug: params.slug }, { next: { revalidate: 30 } })
+    .fetch<ShopProduct>(shopProductBySlugQuery, { slug }, { next: { revalidate: 30 } })
     .catch(() => null)
 
   if (!product) notFound()
@@ -94,7 +96,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
     : 'https://picsum.photos/seed/product-hero/1600/900'
 
   const prices = (product.sizes ?? []).map((s) => s.price).filter(Boolean)
-  const canonicalUrl = `${SITE_URL}/shop/${params.slug}`
+  const canonicalUrl = `${SITE_URL}/shop/${slug}`
   const imgUrl = product.mainImage?.asset ? urlFor(product.mainImage).width(1200).url() : undefined
 
   const productJsonLd = {
