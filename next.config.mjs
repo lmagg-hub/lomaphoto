@@ -8,7 +8,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   `img-src 'self' data: https://cdn.sanity.io https://${SANITY_PROJECT_ID}.api.sanity.io`,
-  "media-src 'self'",
+  "media-src 'self' blob: data: https:",
   "frame-src https://js.stripe.com https://hooks.stripe.com",
   `connect-src 'self' https://${SANITY_PROJECT_ID}.api.sanity.io https://${SANITY_PROJECT_ID}.apicdn.sanity.io wss://${SANITY_PROJECT_ID}.api.sanity.io https://www.google-analytics.com https://region1.google-analytics.com https://api.stripe.com`,
 ].join('; ')
