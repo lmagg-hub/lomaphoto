@@ -12,9 +12,12 @@ export const client = createClient({
   useCdn: true,
 })
 
+// Trim token to prevent whitespace/newline issues from env var copy-paste
+const token = process.env.SANITY_API_TOKEN?.trim() || undefined
+
 // Authenticated write client — bypasses CDN, uses API token
 export const writeClient = createClient({
   ...config,
   useCdn: false,
-  token: process.env.SANITY_API_TOKEN,
+  token,
 })
