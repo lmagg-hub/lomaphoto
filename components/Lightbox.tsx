@@ -1,22 +1,33 @@
 'use client'
 
 import { useEffect, useCallback, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import Image from 'next/image'
 
+interface LightboxImage {
+  src: string
+  alt: string
+  title?: string
+  id: string
+}
+
 interface LightboxProps {
-  images: Array<{ src: string; alt: string; title?: string }>
+  images: LightboxImage[]
   currentIndex: number
+  activeId: string        // id of the image currently shown — drives layoutId
   onClose: () => void
   onPrev: () => void
   onNext: () => void
 }
 
-export default function Lightbox({ images, currentIndex, onClose, onPrev, onNext }: LightboxProps) {
+const FLIP_TRANSITION = { duration: 0.62, ease: [0.4, 0, 0.2, 1] } as const
+
+export default function Lightbox({ images, currentIndex, activeId, onClose, onPrev, onNext }: LightboxProps) {
   const current = images[currentIndex]
   const touchStartX = useRef<number | null>(null)
   const touchStartY = useRef<number | null>(null)
 
+  // Keyboard + body scroll lock
   const handleKey = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -44,7 +55,6 @@ export default function Lightbox({ images, currentIndex, onClose, onPrev, onNext
     if (touchStartX.current === null || touchStartY.current === null) return
     const dx = e.changedTouches[0].clientX - touchStartX.current
     const dy = e.changedTouches[0].clientY - touchStartY.current
-    // Only register as horizontal swipe if horizontal movement dominates
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 48) {
       dx < 0 ? onNext() : onPrev()
     }
@@ -53,20 +63,28 @@ export default function Lightbox({ images, currentIndex, onClose, onPrev, onNext
   }
 
   return (
-    <AnimatePresence>
+    // Overlay — fades in/out independently of the FLIP image
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.95)' }}
+      onClick={onClose}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Bildansicht"
+    >
+      {/* Controls fade in slightly after FLIP settles */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
-        className="fixed inset-0 z-[100] flex items-center justify-center"
-        style={{ background: 'rgba(0,0,0,0.95)' }}
-        onClick={onClose}
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Bildansicht"
+        transition={{ duration: 0.25, delay: 0.35 }}
+        className="contents"
       >
         {/* Close */}
         <button
@@ -79,7 +97,7 @@ export default function Lightbox({ images, currentIndex, onClose, onPrev, onNext
           </svg>
         </button>
 
-        {/* Prev arrow */}
+        {/* Prev */}
         {images.length > 1 && (
           <button
             onClick={(e) => { e.stopPropagation(); onPrev() }}
@@ -92,7 +110,7 @@ export default function Lightbox({ images, currentIndex, onClose, onPrev, onNext
           </button>
         )}
 
-        {/* Next arrow */}
+        {/* Next */}
         {images.length > 1 && (
           <button
             onClick={(e) => { e.stopPropagation(); onNext() }}
@@ -105,40 +123,52 @@ export default function Lightbox({ images, currentIndex, onClose, onPrev, onNext
           </button>
         )}
 
-        {/* Image */}
-        <motion.div
-          key={currentIndex}
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="relative flex flex-col items-center px-16"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="relative" style={{ maxWidth: '90vw', maxHeight: '80vh' }}>
-            <Image
-              src={current.src}
-              alt={current.alt}
-              width={1400}
-              height={1050}
-              className="object-contain"
-              style={{ maxWidth: '90vw', maxHeight: '78vh', width: 'auto', height: 'auto' }}
-              priority
-            />
-          </div>
-
-          {/* Title + counter */}
-          <div className="mt-4 flex flex-col items-center gap-1.5">
-            {current.title && (
-              <p className="text-white/70 text-xs tracking-[0.25em] uppercase font-sans">
-                {current.title}
-              </p>
-            )}
-            <p className="text-white/35 text-[11px] tracking-widest font-sans tabular-nums">
-              {currentIndex + 1} / {images.length}
+        {/* Counter + title — below the image */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 z-20">
+          {current.title && (
+            <p className="text-white/70 text-xs tracking-[0.25em] uppercase font-sans">
+              {current.title}
             </p>
-          </div>
+          )}
+          <p className="text-white/35 text-[11px] tracking-widest font-sans tabular-nums">
+            {currentIndex + 1} / {images.length}
+          </p>
+        </div>
+      </motion.div>
+
+      {/* ── FLIP image ──────────────────────────────────────────────────────
+          layoutId matches the gallery thumbnail → Framer Motion animates
+          position + size from thumbnail rect to this centered rect.
+          When navigating, activeId changes → old image flies back to its
+          thumbnail, new image flies in from its thumbnail. Magic.
+      ──────────────────────────────────────────────────────────────────── */}
+      <motion.div
+        layoutId={`photo-${activeId}`}
+        layout
+        transition={FLIP_TRANSITION}
+        className="relative z-10"
+        style={{ maxWidth: '90vw', maxHeight: '80vh' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Image content fades in after FLIP has mostly settled (looks cleaner
+            than showing the thumbnail content stretching to fullscreen size) */}
+        <motion.div
+          key={current.src}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2, delay: 0.42 }}
+        >
+          <Image
+            src={current.src}
+            alt={current.alt}
+            width={1400}
+            height={1050}
+            className="object-contain"
+            style={{ maxWidth: '90vw', maxHeight: '78vh', width: 'auto', height: 'auto' }}
+            priority
+          />
         </motion.div>
       </motion.div>
-    </AnimatePresence>
+    </motion.div>
   )
 }
