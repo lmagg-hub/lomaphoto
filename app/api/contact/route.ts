@@ -62,8 +62,8 @@ export async function POST(req: NextRequest) {
     if (process.env.RESEND_API_KEY) {
       const resend = new Resend(process.env.RESEND_API_KEY)
       await resend.emails.send({
-        from: 'kontakt@lomaphoto.at',
-        to: 'lorenz@lomaphoto.at',
+        from: 'lmagg@gmx.at',
+        to: 'lmagg@gmx.at',
         replyTo: email,
         subject: `Neue Kontaktanfrage von ${name}`,
         html: `
