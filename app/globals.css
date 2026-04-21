@@ -138,12 +138,6 @@
 
 /* ─── Cinemagraph keyframes ────────────────────────────────────────────── */
 
-/* Hero: slow diagonal light sweep across the video */
-@keyframes heroShimmer {
-  0%   { transform: translateX(-120%) rotate(12deg); }
-  100% { transform: translateX(280%) rotate(12deg); }
-}
-
 /* Gallery featured: subtle scale "breath" */
 @keyframes breathe {
   0%, 100% { transform: scale(1); }

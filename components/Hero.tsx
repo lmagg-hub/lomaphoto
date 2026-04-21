@@ -224,22 +224,6 @@ export default function Hero({ settings }: { settings: SiteSettings | null }) {
         }}
       />
 
-      {/* Shimmer — slow diagonal light streak, barely visible */}
-      <div
-        aria-hidden="true"
-        style={{ position: 'absolute', inset: 0, zIndex: 3, overflow: 'hidden', pointerEvents: 'none' }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            top: '-50%', left: '-20%',
-            width: '25%', height: '200%',
-            background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%)',
-            animation: 'heroShimmer 30s linear infinite',
-          }}
-        />
-      </div>
-
       {/* ── Centered text overlay ── */}
       <div
         style={{
