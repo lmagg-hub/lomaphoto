@@ -7,6 +7,7 @@ import type { GalleryImage } from '@/types'
 import { urlFor } from '@/sanity/image'
 import Lightbox from './Lightbox'
 import ScrollReveal from './ScrollReveal'
+import { useParallax } from '@/hooks/useParallax'
 
 const DEMO_IMAGES: Array<{ id: string; src: string; alt: string; title: string; w: number; h: number }> = [
   { id: '1', src: 'https://picsum.photos/seed/loma1/800/1100', alt: 'Portrait I', title: 'Stille', w: 800, h: 1100 },
@@ -28,6 +29,7 @@ interface NormalizedImage {
   width: number
   height: number
   lqip?: string
+  animated?: boolean
 }
 
 function normalize(images: GalleryImage[]): NormalizedImage[] {
@@ -41,11 +43,13 @@ function normalize(images: GalleryImage[]): NormalizedImage[] {
       width: img.image.asset.metadata?.dimensions?.width ?? 800,
       height: img.image.asset.metadata?.dimensions?.height ?? 1000,
       lqip: img.image.asset.metadata?.lqip,
+      animated: img.animated ?? false,
     }))
 }
 
 export default function Gallery({ images }: { images: GalleryImage[] }) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const bgRef = useParallax<HTMLDivElement>(0.15, 30)
 
   const normalized: NormalizedImage[] =
     images.length > 0
@@ -55,7 +59,16 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
   const lightboxImages = normalized.map((img) => ({ src: img.src, alt: img.alt, title: img.title }))
 
   return (
-    <section id="galerie" className="py-24 md:py-32 px-6 md:px-10 max-w-7xl mx-auto">
+    <section id="galerie" className="relative py-24 md:py-32 px-6 md:px-10 max-w-7xl mx-auto">
+      {/* Parallax background glow — shifts at 0.3× scroll speed */}
+      <div
+        ref={bgRef}
+        className="absolute pointer-events-none -z-10"
+        style={{
+          inset: '-80px',
+          background: 'radial-gradient(ellipse 70% 40% at 50% 55%, rgba(201,169,110,0.05) 0%, transparent 70%)',
+        }}
+      />
       <ScrollReveal>
         <div className="text-center mb-16">
           <h2 className="section-heading">Galerie</h2>
@@ -78,7 +91,7 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
             tabIndex={0}
             aria-label={`Foto vergrößern: ${img.title || img.alt}`}
           >
-            <div className="relative overflow-hidden bg-dark-200">
+            <div className={`relative overflow-hidden bg-dark-200${img.animated ? ' cine-breathe' : ''}`}>
               <Image
                 src={img.src}
                 alt={img.alt}

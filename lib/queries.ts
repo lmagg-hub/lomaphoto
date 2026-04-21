@@ -20,6 +20,7 @@ export const galleryQuery = groq`
     alt,
     category,
     order,
+    animated,
     image { ${imageFields} }
   }
 `

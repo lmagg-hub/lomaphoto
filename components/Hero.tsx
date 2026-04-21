@@ -48,6 +48,29 @@ export default function Hero({ settings }: { settings: SiteSettings | null }) {
     return () => video.removeEventListener('canplay', onCanPlay)
   }, [])
 
+  // ── Video parallax (desktop only): bg moves at ~0.5x scroll speed ────────
+  useEffect(() => {
+    const el = videoRef.current
+    if (!el) return
+    if (!window.matchMedia('(pointer: fine)').matches) return
+    el.style.willChange = 'transform'
+    let rafId = 0
+    const onScroll = () => {
+      cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(() => {
+        // translateY down as page scrolls up → video lags behind → depth
+        const offset = Math.min(window.scrollY * 0.175, 55)
+        el.style.transform = `translateY(${offset}px)`
+      })
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      cancelAnimationFrame(rafId)
+      el.style.willChange = ''
+    }
+  }, [])
+
   // ── Web Audio ────────────────────────────────────────────────────────────
   const initAudio = useCallback(() => {
     if (audioCtxRef.current) return
@@ -180,8 +203,9 @@ export default function Hero({ settings }: { settings: SiteSettings | null }) {
         ref={videoRef}
         aria-hidden="true"
         style={{
-          position: 'absolute', inset: 0,
-          width: '100%', height: '100%',
+          position: 'absolute',
+          top: '-12%', left: 0,
+          width: '100%', height: '124%',
           objectFit: 'cover',
           opacity: videoLoaded ? 1 : 0,
           transition: 'opacity 1s ease',
@@ -199,6 +223,22 @@ export default function Hero({ settings }: { settings: SiteSettings | null }) {
           background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.1) 70%, rgba(0,0,0,0.65) 100%)',
         }}
       />
+
+      {/* Shimmer — slow diagonal light streak, barely visible */}
+      <div
+        aria-hidden="true"
+        style={{ position: 'absolute', inset: 0, zIndex: 3, overflow: 'hidden', pointerEvents: 'none' }}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            top: '-50%', left: '-20%',
+            width: '25%', height: '200%',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%)',
+            animation: 'heroShimmer 30s linear infinite',
+          }}
+        />
+      </div>
 
       {/* ── Centered text overlay ── */}
       <div

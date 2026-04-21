@@ -45,6 +45,13 @@ export const galleryImageSchema = defineType({
       type: 'number',
       description: 'Kleinere Zahl = weiter vorne',
     }),
+    defineField({
+      name: 'animated',
+      title: 'Cinemagraph-Effekt',
+      type: 'boolean',
+      description: 'Aktiviert subtilen Atem-Effekt — nur für 2–3 Highlight-Bilder verwenden',
+      initialValue: false,
+    }),
   ],
   preview: {
     select: { title: 'title', media: 'image', subtitle: 'category' },

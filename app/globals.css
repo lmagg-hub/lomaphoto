@@ -136,6 +136,38 @@
   to   { transform: translate3d(-33.3333%, 0, 0); }
 }
 
+/* ─── Cinemagraph keyframes ────────────────────────────────────────────── */
+
+/* Hero: slow diagonal light sweep across the video */
+@keyframes heroShimmer {
+  0%   { transform: translateX(-120%) rotate(12deg); }
+  100% { transform: translateX(280%) rotate(12deg); }
+}
+
+/* Gallery featured: subtle scale "breath" */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.04); }
+}
+
+/* Shop teaser: gentle horizontal float */
+@keyframes drift {
+  0%, 100% { transform: translateX(0px); }
+  50%       { transform: translateX(6px); }
+}
+
+/* Only run on pointer:fine (desktop) and when user hasn't requested reduced motion */
+@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .cine-breathe {
+    will-change: transform;
+    animation: breathe 7s ease-in-out infinite;
+  }
+  .cine-drift {
+    will-change: transform;
+    animation: drift 12s ease-in-out infinite;
+  }
+}
+
 /* Grain texture overlay */
 .grain::after {
   content: '';

@@ -26,6 +26,7 @@ export interface GalleryImage {
   alt: string
   category: string
   order: number
+  animated?: boolean
   image: SanityImage
 }
 
