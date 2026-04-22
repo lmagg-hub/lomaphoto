@@ -46,6 +46,13 @@ export const galleryImageSchema = defineType({
       description: 'Kleinere Zahl = weiter vorne',
     }),
     defineField({
+      name: 'featured',
+      title: 'Feature on Homepage',
+      type: 'boolean',
+      description: 'Auf der Startseite anzeigen (max. 5 Bilder)',
+      initialValue: false,
+    }),
+    defineField({
       name: 'animated',
       title: 'Cinemagraph-Effekt',
       type: 'boolean',

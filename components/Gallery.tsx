@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import type { GalleryImage } from '@/types'
@@ -24,6 +25,7 @@ const DEMO_IMAGES: Array<{ id: string; src: string; alt: string; title: string; 
 interface NormalizedImage {
   id: string
   src: string
+  lightboxSrc: string
   alt: string
   title: string
   width: number
@@ -38,6 +40,7 @@ function normalize(images: GalleryImage[]): NormalizedImage[] {
     .map((img) => ({
       id: img._id,
       src: urlFor(img.image).width(1200).url(),
+      lightboxSrc: urlFor(img.image).width(3000).quality(95).url(),
       alt: img.alt ?? img.title ?? '',
       title: img.title ?? '',
       width: img.image.asset.metadata?.dimensions?.width ?? 800,
@@ -56,16 +59,18 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
   const normalized: NormalizedImage[] =
     images.length > 0
       ? normalize(images)
-      : DEMO_IMAGES.map((d) => ({ id: d.id, src: d.src, alt: d.alt, title: d.title, width: d.w, height: d.h, lqip: undefined }))
+      : DEMO_IMAGES.map((d) => ({ id: d.id, src: d.src, lightboxSrc: d.src, alt: d.alt, title: d.title, width: d.w, height: d.h, lqip: undefined }))
 
   // id of the thumbnail currently shown in lightbox (drives layoutId)
   const activeId = lightboxIndex !== null ? (normalized[lightboxIndex]?.id ?? null) : null
 
   const lightboxImages = normalized.map((img) => ({
-    src: img.src,
+    src: img.lightboxSrc,
     alt: img.alt,
     title: img.title,
     id: img.id,
+    width: img.width,
+    height: img.height,
   }))
 
   return (
@@ -142,6 +147,15 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
             </motion.div>
           ))}
         </div>
+
+        {/* "Zur Galerie" link */}
+        <ScrollReveal>
+          <div className="text-center mt-16">
+            <Link href="/galerie" className="btn-primary">
+              Zur Galerie
+            </Link>
+          </div>
+        </ScrollReveal>
 
         {/* AnimatePresence here (not inside Lightbox) so exit animations play on unmount */}
         <AnimatePresence>

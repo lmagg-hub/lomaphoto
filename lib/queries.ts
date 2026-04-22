@@ -21,6 +21,20 @@ export const galleryQuery = groq`
     category,
     order,
     animated,
+    featured,
+    image { ${imageFields} }
+  }
+`
+
+export const featuredGalleryQuery = groq`
+  *[_type == "galleryImage" && featured == true] | order(order asc, _createdAt desc) [0...5] {
+    _id,
+    title,
+    alt,
+    category,
+    order,
+    animated,
+    featured,
     image { ${imageFields} }
   }
 `

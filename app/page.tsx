@@ -1,6 +1,6 @@
 import { writeClient } from '@/sanity/client'
 import {
-  galleryQuery,
+  featuredGalleryQuery,
   videosQuery,
   shopTeaserQuery,
   aboutQuery,
@@ -31,7 +31,7 @@ async function fetchSanityData() {
 
   try {
     const [gallery, videos, teasers, about, settings] = await Promise.all([
-      writeClient.fetch<GalleryImage[]>(galleryQuery, {}, fetchOpts),
+      writeClient.fetch<GalleryImage[]>(featuredGalleryQuery, {}, fetchOpts),
       writeClient.fetch<VideoProject[]>(videosQuery, {}, fetchOpts),
       writeClient.fetch<ShopTeaser[]>(shopTeaserQuery, {}, { next: { revalidate: 30 } }),
       writeClient.fetch<About>(aboutQuery, {}, fetchOpts),
