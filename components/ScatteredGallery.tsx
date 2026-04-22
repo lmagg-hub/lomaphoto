@@ -61,8 +61,18 @@ function toRaw(images: GalleryImage[]): RawImage[] {
       width: d.w, height: d.h, lqip: undefined,
     }))
   }
+  const seenIds    = new Set<string>()
+  const seenAssets = new Set<string>()
   return images
     .filter(i => i.image?.asset)
+    .filter(i => {
+      if (seenIds.has(i._id)) return false
+      seenIds.add(i._id)
+      const assetId = i.image.asset._id
+      if (assetId && seenAssets.has(assetId)) return false
+      if (assetId) seenAssets.add(assetId)
+      return true
+    })
     .map(i => ({
       id: i._id,
       src:         urlFor(i.image).width(800).quality(85).url(),

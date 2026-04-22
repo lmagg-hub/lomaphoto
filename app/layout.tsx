@@ -11,8 +11,7 @@ import {
 import './globals.css'
 import Analytics from '@/components/Analytics'
 import CookieBanner from '@/components/CookieBanner'
-import ScrollToTop from '@/components/ScrollToTop'
-import LenisProvider from '@/components/LenisProvider'
+import SiteWrapper from '@/components/SiteWrapper'
 
 const playfair = Playfair_Display({
   subsets: ['latin', 'latin-ext'],
@@ -146,12 +145,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="de" className={`${playfair.variable} ${inter.variable} ${roboto.variable} ${openSans.variable} ${montserrat.variable} ${oswald.variable} ${cormorant.variable}`}>
       <body className="bg-dark text-light font-sans antialiased">
-        <LenisProvider>
+        <SiteWrapper>
           {children}
-          <Analytics />
-          <CookieBanner />
-          <ScrollToTop />
-        </LenisProvider>
+        </SiteWrapper>
+        <Analytics />
+        <CookieBanner />
       </body>
     </html>
   )

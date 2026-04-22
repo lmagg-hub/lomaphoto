@@ -35,8 +35,18 @@ interface NormalizedImage {
 }
 
 function normalize(images: GalleryImage[]): NormalizedImage[] {
+  const seenIds    = new Set<string>()
+  const seenAssets = new Set<string>()
   return images
     .filter((img) => img.image?.asset)
+    .filter((img) => {
+      if (seenIds.has(img._id)) return false
+      seenIds.add(img._id)
+      const assetId = img.image.asset._id
+      if (assetId && seenAssets.has(assetId)) return false
+      if (assetId) seenAssets.add(assetId)
+      return true
+    })
     .map((img) => ({
       id: img._id,
       src: urlFor(img.image).width(1000).quality(85).url(),
