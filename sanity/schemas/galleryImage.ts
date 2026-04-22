@@ -12,6 +12,13 @@ export const galleryImageSchema = defineType({
       validation: (R) => R.required(),
     }),
     defineField({
+      name: 'featured',
+      title: 'Auf Startseite anzeigen',
+      type: 'boolean',
+      description: 'Bild auf der Startseite in der Galerie anzeigen (max. 5 auswählen)',
+      initialValue: false,
+    }),
+    defineField({
       name: 'image',
       title: 'Bild',
       type: 'image',
@@ -44,13 +51,6 @@ export const galleryImageSchema = defineType({
       title: 'Reihenfolge',
       type: 'number',
       description: 'Kleinere Zahl = weiter vorne',
-    }),
-    defineField({
-      name: 'featured',
-      title: 'Feature on Homepage',
-      type: 'boolean',
-      description: 'Auf der Startseite anzeigen (max. 5 Bilder)',
-      initialValue: false,
     }),
     defineField({
       name: 'animated',

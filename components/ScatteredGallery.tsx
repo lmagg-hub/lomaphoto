@@ -65,8 +65,8 @@ function toRaw(images: GalleryImage[]): RawImage[] {
     .filter(i => i.image?.asset)
     .map(i => ({
       id: i._id,
-      src:         urlFor(i.image).width(700).url(),
-      lightboxSrc: urlFor(i.image).width(3000).quality(95).url(),
+      src:         urlFor(i.image).width(800).quality(85).url(),
+      lightboxSrc: urlFor(i.image).width(2400).quality(90).url(),
       alt: i.alt ?? i.title ?? '',
       title: i.title ?? '',
       width:  i.image.asset.metadata?.dimensions?.width  ?? 800,
@@ -236,6 +236,10 @@ function MobileGrid({ items, activeId, onOpen }: GridProps) {
 export default function ScatteredGallery({ images }: { images: GalleryImage[] }) {
   const raw = useMemo(() => toRaw(images), [images])
 
+  // mounted guard — SSR and initial client render are identical (placeholder),
+  // avoiding any hydration mismatch from window-dependent state.
+  const [mounted, setMounted] = useState(false)
+
   // Responsive breakpoint + fan spread — computed client-side after mount
   const [breakpoint, setBreakpoint] = useState<Breakpoint>('desktop')
   const [spreadX,    setSpreadX]    = useState(440)
@@ -254,6 +258,7 @@ export default function ScatteredGallery({ images }: { images: GalleryImage[] })
       }
     }
     compute()
+    setMounted(true)
     window.addEventListener('resize', compute)
     return () => window.removeEventListener('resize', compute)
   }, [])
@@ -285,6 +290,11 @@ export default function ScatteredGallery({ images }: { images: GalleryImage[] })
     alt: img.alt, title: img.title,
     id: img.id, width: img.width, height: img.height,
   }))
+
+  // ── Pre-mount: render nothing — server and client initial output match exactly
+  if (!mounted) {
+    return <div style={{ minHeight: '72vh' }} aria-hidden="true" />
+  }
 
   // ── Mobile: clean 2-column grid ────────────────────────────────────────────
   if (breakpoint === 'mobile') {

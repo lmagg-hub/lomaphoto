@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useCallback, useRef } from 'react'
+import { useEffect, useCallback, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 
@@ -87,6 +87,11 @@ export default function Lightbox({ images, currentIndex, activeId, onClose, onPr
 
   const containerStyle = getContainerStyle(current.width, current.height)
 
+  // Track whether the full-res image has finished loading
+  const [imgLoaded, setImgLoaded] = useState(false)
+  // Reset whenever the displayed image changes
+  useEffect(() => { setImgLoaded(false) }, [current.src])
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -172,9 +177,9 @@ export default function Lightbox({ images, currentIndex, activeId, onClose, onPr
       </motion.div>
 
       {/* ── FLIP image ───────────────────────────────────────────────────────
-          Container is sized by viewport units (see getContainerStyle).
-          Landscape → fills 95vw width.  Portrait → fills 90vh height.
-          Image uses fill + object-cover to fill the computed container.
+          Container sized by viewport units (getContainerStyle).
+          Landscape → 95vw width.  Portrait → 90vh height.
+          Full-res loads on demand; spinner shows until onLoad fires.
       ─────────────────────────────────────────────────────────────────────── */}
       <motion.div
         layoutId={`photo-${activeId}`}
@@ -184,11 +189,12 @@ export default function Lightbox({ images, currentIndex, activeId, onClose, onPr
         style={containerStyle}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Full-res image — fades in after FLIP settles */}
         <motion.div
           key={current.src}
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.2, delay: 0.42 }}
+          animate={{ opacity: imgLoaded ? 1 : 0 }}
+          transition={{ duration: 0.35 }}
           className="absolute inset-0"
         >
           <Image
@@ -197,9 +203,20 @@ export default function Lightbox({ images, currentIndex, activeId, onClose, onPr
             fill
             className="object-cover"
             sizes="95vw"
-            quality={95}
+            quality={90}
             priority
+            onLoad={() => setImgLoaded(true)}
           />
+        </motion.div>
+
+        {/* Spinner — visible after FLIP settles, until image is ready */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: imgLoaded ? 0 : 1 }}
+          transition={{ duration: 0.2, delay: imgLoaded ? 0 : 0.5 }}
+          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        >
+          <div className="w-7 h-7 rounded-full border-2 border-white/15 border-t-white/60 animate-spin" />
         </motion.div>
       </motion.div>
     </motion.div>

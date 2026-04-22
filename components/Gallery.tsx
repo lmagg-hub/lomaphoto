@@ -39,8 +39,8 @@ function normalize(images: GalleryImage[]): NormalizedImage[] {
     .filter((img) => img.image?.asset)
     .map((img) => ({
       id: img._id,
-      src: urlFor(img.image).width(1200).url(),
-      lightboxSrc: urlFor(img.image).width(3000).quality(95).url(),
+      src: urlFor(img.image).width(1000).quality(85).url(),
+      lightboxSrc: urlFor(img.image).width(2400).quality(90).url(),
       alt: img.alt ?? img.title ?? '',
       title: img.title ?? '',
       width: img.image.asset.metadata?.dimensions?.width ?? 800,
