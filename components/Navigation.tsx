@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import type { SiteSettings } from '@/types'
 
 const NAV_LINKS = [
@@ -13,14 +14,12 @@ const NAV_LINKS = [
 ]
 
 export default function Navigation({ settings }: { settings: SiteSettings | null }) {
-  const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 60)
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  // Scroll-driven background — no React re-renders, GPU-animated
+  const { scrollY } = useScroll()
+  const rawOpacity  = useTransform(scrollY, [0, 100], [0, 1])
+  const bgOpacity   = useSpring(rawOpacity, { stiffness: 80, damping: 20, restDelta: 0.001 })
 
   const handleNavClick = (href: string) => {
     setMenuOpen(false)
@@ -29,14 +28,22 @@ export default function Navigation({ settings }: { settings: SiteSettings | null
   }
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? 'bg-dark/90 backdrop-blur-md border-b border-dark-200'
-          : 'bg-transparent'
-      }`}
-    >
-      <nav aria-label="Hauptnavigation" className="max-w-7xl mx-auto px-6 md:px-10 h-16 md:h-20 flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-50">
+      {/* Background layer — opacity driven by scroll position, not a class toggle */}
+      <motion.div
+        aria-hidden="true"
+        style={{
+          position: 'absolute', inset: 0,
+          background: 'rgba(10, 10, 10, 0.92)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          borderBottom: '1px solid rgba(255,255,255,0.055)',
+          opacity: bgOpacity,
+          pointerEvents: 'none',
+        }}
+      />
+
+      <nav aria-label="Hauptnavigation" className="relative max-w-7xl mx-auto px-6 md:px-10 h-16 md:h-20 flex items-center justify-between">
         {/* Logo */}
         <Link
           href="/"

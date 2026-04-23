@@ -32,6 +32,12 @@ export default defineConfig({
                   .schemaType('about')
                   .documentId('about')
               ),
+            S.listItem()
+              .title('Hero Videos')
+              .id('heroVideos')
+              .child(
+                S.documentTypeList('heroVideos').title('Hero Videos')
+              ),
             S.divider(),
             S.documentTypeListItem('galleryImage').title('Galerie'),
             S.documentTypeListItem('videoProject').title('Videoprojekte'),
