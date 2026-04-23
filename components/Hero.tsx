@@ -17,15 +17,23 @@ function randDelay() {
   return MIN_TYPE + Math.random() * (MAX_TYPE - MIN_TYPE)
 }
 
-export default function Hero({ settings }: { settings: SiteSettings | null }) {
+const SESSION_KEY = 'loma_hero_video'
+
+export default function Hero({
+  settings,
+  heroVideoUrls = [],
+}: {
+  settings: SiteSettings | null
+  heroVideoUrls?: string[]
+}) {
   const videoRef    = useRef<HTMLVideoElement>(null)
   const audioCtxRef = useRef<AudioContext | null>(null)
   const gainRef     = useRef<GainNode | null>(null)
 
-  // Keep sound flag in a ref so the state-machine effect never needs it as a dep
   const soundOnRef  = useRef(false)
 
-  const [videoLoaded, setVideoLoaded] = useState(false)
+  const [videoLoaded,      setVideoLoaded]      = useState(false)
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null)
   const [wordIndex,   setWordIndex]   = useState(0)
   const [chars,       setChars]       = useState(0)
   const [phase,       setPhase]       = useState<Phase>('pre')
@@ -38,15 +46,46 @@ export default function Hero({ settings }: { settings: SiteSettings | null }) {
   const title    = settings?.heroTitle    ?? 'Lorenz Magg'
   const subtitle = settings?.heroSubtitle ?? 'Photography & Videography'
 
-  // ── Video ────────────────────────────────────────────────────────────────
+  // ── Pick hero video (client-side, sessionStorage for session consistency) ─
+  useEffect(() => {
+    if (heroVideoUrls.length === 0) {
+      setSelectedVideoUrl('/hero.mp4')
+      return
+    }
+    try {
+      const stored = sessionStorage.getItem(SESSION_KEY)
+      if (stored && heroVideoUrls.includes(stored)) {
+        setSelectedVideoUrl(stored)
+        return
+      }
+      const picked = heroVideoUrls[Math.floor(Math.random() * heroVideoUrls.length)]
+      sessionStorage.setItem(SESSION_KEY, picked)
+      setSelectedVideoUrl(picked)
+    } catch {
+      // sessionStorage blocked (private mode etc.) — just pick randomly
+      const picked = heroVideoUrls[Math.floor(Math.random() * heroVideoUrls.length)]
+      setSelectedVideoUrl(picked)
+    }
+  // heroVideoUrls is server-rendered and stable; intentionally omitted from deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // ── canplay listener (once on mount) ─────────────────────────────────────
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
     const onCanPlay = () => setVideoLoaded(true)
     video.addEventListener('canplay', onCanPlay)
-    video.load()
     return () => video.removeEventListener('canplay', onCanPlay)
   }, [])
+
+  // ── Load video whenever selected URL is resolved ──────────────────────────
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video || selectedVideoUrl === null) return
+    setVideoLoaded(false)
+    video.load()
+  }, [selectedVideoUrl])
 
   // ── Video parallax (desktop only): bg moves at ~0.5x scroll speed ────────
   useEffect(() => {
@@ -213,7 +252,9 @@ export default function Hero({ settings }: { settings: SiteSettings | null }) {
         autoPlay muted loop playsInline preload="auto"
         onError={() => setVideoLoaded(false)}
       >
-        <source src="/hero.mp4" type="video/mp4" />
+        {selectedVideoUrl && (
+          <source src={selectedVideoUrl} type="video/mp4" />
+        )}
       </video>
 
       {/* Vignette */}

@@ -59,6 +59,14 @@ export interface About {
   imageAlt?: string
 }
 
+export interface HeroVideos {
+  title?: string
+  videos: Array<{
+    name?: string
+    video?: { asset?: { url: string } }
+  }>
+}
+
 export interface SiteSettings {
   heroTitle: string
   heroSubtitle: string

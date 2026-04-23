@@ -6,9 +6,11 @@ import { siteSettingsSchema } from './siteSettings'
 import { shopProductSchema } from './shopProduct'
 import { clientTickerSchema } from './clientTicker'
 import { shopTeaserSchema } from './shopTeaser'
+import { heroVideosSchema } from './heroVideos'
 
 export const schemaTypes = [
   siteSettingsSchema,
+  heroVideosSchema,
   aboutSchema,
   galleryImageSchema,
   videoProjectSchema,

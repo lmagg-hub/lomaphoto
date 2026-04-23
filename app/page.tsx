@@ -5,8 +5,9 @@ import {
   shopTeaserQuery,
   aboutQuery,
   settingsQuery,
+  heroVideosQuery,
 } from '@/lib/queries'
-import type { GalleryImage, VideoProject, ShopTeaser, About, SiteSettings } from '@/types'
+import type { GalleryImage, VideoProject, ShopTeaser, About, SiteSettings, HeroVideos } from '@/types'
 import Navigation from '@/components/Navigation'
 import Hero from '@/components/Hero'
 import Gallery from '@/components/Gallery'
@@ -30,19 +31,18 @@ async function fetchSanityData() {
   const fetchOpts = { next: { revalidate: REVALIDATE } }
 
   try {
-    const [gallery, videos, teasers, about, settings] = await Promise.all([
+    const [gallery, videos, teasers, about, settings, heroVideos] = await Promise.all([
       writeClient.fetch<GalleryImage[]>(featuredGalleryQuery, {}, fetchOpts),
       writeClient.fetch<VideoProject[]>(videosQuery, {}, fetchOpts),
       writeClient.fetch<ShopTeaser[]>(shopTeaserQuery, {}, { next: { revalidate: 30 } }),
       writeClient.fetch<About>(aboutQuery, {}, fetchOpts),
       writeClient.fetch<SiteSettings>(settingsQuery, {}, fetchOpts),
+      writeClient.fetch<HeroVideos | null>(heroVideosQuery, {}, fetchOpts),
     ])
 
-    console.log('[Sanity] gallery:', gallery?.length ?? 0)
-    console.log('[Sanity] videos:', videos?.length ?? 0)
-    console.log('[Sanity] teasers:', teasers?.length ?? 0)
-    console.log('[Sanity] about:', about ? 'loaded' : 'empty')
-    console.log('[Sanity] settings:', settings ? 'loaded' : 'empty')
+    const heroVideoUrls = (heroVideos?.videos ?? [])
+      .map(v => v.video?.asset?.url)
+      .filter((u): u is string => Boolean(u))
 
     return {
       gallery: gallery ?? [],
@@ -50,22 +50,23 @@ async function fetchSanityData() {
       teasers: teasers ?? [],
       about,
       settings,
+      heroVideoUrls,
     }
   } catch (err) {
     console.error('[Sanity] Fetch error:', err)
-    return { gallery: [], videos: [], teasers: [], about: null, settings: null }
+    return { gallery: [], videos: [], teasers: [], about: null, settings: null, heroVideoUrls: [] }
   }
 }
 
 export default async function Home() {
-  const { gallery, videos, teasers, about, settings } = await fetchSanityData()
+  const { gallery, videos, teasers, about, settings, heroVideoUrls } = await fetchSanityData()
 
   return (
     <>
       <StructuredData settings={settings} gallery={gallery} />
       <main className="overflow-x-hidden">
         <Navigation settings={settings} />
-        <Hero settings={settings} />
+        <Hero settings={settings} heroVideoUrls={heroVideoUrls} />
         <Gallery images={gallery} />
         <Videography videos={videos} />
         <ClientTicker />

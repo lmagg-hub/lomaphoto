@@ -158,3 +158,13 @@ export const settingsQuery = groq`
     location
   }
 `
+
+export const heroVideosQuery = groq`
+  *[_type == "heroVideos"][0] {
+    title,
+    videos[] {
+      name,
+      video { asset-> { url } }
+    }
+  }
+`
