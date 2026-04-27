@@ -25,6 +25,14 @@ export default defineConfig({
                   .documentId('siteSettings')
               ),
             S.listItem()
+              .title('Homepage Einstellungen')
+              .id('homepageSettings')
+              .child(
+                S.document()
+                  .schemaType('homepageSettings')
+                  .documentId('homepageSettings')
+              ),
+            S.listItem()
               .title('Über mich')
               .id('about')
               .child(

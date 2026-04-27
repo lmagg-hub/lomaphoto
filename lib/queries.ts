@@ -40,13 +40,14 @@ export const featuredGalleryQuery = groq`
 `
 
 export const videosQuery = groq`
-  *[_type == "videoProject"] | order(featured desc, _createdAt desc) {
+  *[_type == "videoProject"] | order(order asc, featured desc, _createdAt desc) {
     _id,
     title,
     description,
     videoUrl,
     category,
     featured,
+    order,
     thumbnail { ${imageFields} }
   }
 `
@@ -156,6 +157,12 @@ export const settingsQuery = groq`
     youtubeUrl,
     vimeoUrl,
     location
+  }
+`
+
+export const homepageSettingsQuery = groq`
+  *[_type == "homepageSettings" && _id == "homepageSettings"][0] {
+    sectionOrder[] { section, enabled }
   }
 `
 

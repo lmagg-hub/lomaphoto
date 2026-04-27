@@ -6,6 +6,14 @@ export const videoProjectSchema = defineType({
   type: 'document',
   fields: [
     defineField({
+      name: 'order',
+      title: 'Reihenfolge',
+      type: 'number',
+      description: 'Reihenfolge auf der Homepage (1 = Hauptvideo, 2, 3… = Karussell)',
+      validation: (R) => R.required().min(1),
+      initialValue: 99,
+    }),
+    defineField({
       name: 'title',
       title: 'Titel',
       type: 'string',

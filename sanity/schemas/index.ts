@@ -7,10 +7,12 @@ import { shopProductSchema } from './shopProduct'
 import { clientTickerSchema } from './clientTicker'
 import { shopTeaserSchema } from './shopTeaser'
 import { heroVideosSchema } from './heroVideos'
+import { homepageSettingsSchema } from './homepageSettings'
 
 export const schemaTypes = [
   siteSettingsSchema,
   heroVideosSchema,
+  homepageSettingsSchema,
   aboutSchema,
   galleryImageSchema,
   videoProjectSchema,

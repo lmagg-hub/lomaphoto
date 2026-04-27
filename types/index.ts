@@ -59,6 +59,17 @@ export interface About {
   imageAlt?: string
 }
 
+export type SectionKey = 'hero' | 'gallery' | 'videography' | 'clients' | 'shop' | 'about' | 'contact'
+
+export interface HomepageSection {
+  section: SectionKey
+  enabled: boolean
+}
+
+export interface HomepageSettings {
+  sectionOrder: HomepageSection[]
+}
+
 export interface HeroVideos {
   title?: string
   videos: Array<{
