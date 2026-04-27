@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import type { SiteSettings } from '@/types'
 
@@ -15,6 +16,8 @@ const NAV_LINKS = [
 
 export default function Navigation({ settings }: { settings: SiteSettings | null }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const pathname = usePathname()
+  const router   = useRouter()
 
   // Scroll-driven background — no React re-renders, GPU-animated
   const { scrollY } = useScroll()
@@ -22,9 +25,16 @@ export default function Navigation({ settings }: { settings: SiteSettings | null
   const bgOpacity   = useSpring(rawOpacity, { stiffness: 80, damping: 20, restDelta: 0.001 })
 
   const handleNavClick = (href: string) => {
+    // href is e.g. "#galerie"
     setMenuOpen(false)
-    const el = document.querySelector(href)
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
+    if (pathname === '/') {
+      // Already on homepage — smooth scroll directly
+      const el = document.querySelector(href)
+      if (el) el.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      // On a subpage — navigate to homepage with hash; ScrollToHash handles the scroll
+      router.push(`/${href}`)
+    }
   }
 
   return (

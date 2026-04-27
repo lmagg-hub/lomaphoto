@@ -116,6 +116,26 @@
   margin-bottom: 12px;
 }
 
+/* /galerie subpage — true masonry via react-masonry-css */
+.gallery-masonry {
+  display: flex;
+  gap: 14px;
+  width: 100%;
+}
+
+.gallery-masonry-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  .gallery-masonry      { gap: 10px; }
+  .gallery-masonry-col  { gap: 10px; }
+}
+
 /* Typewriter cursor — 530 ms on / 530 ms off */
 @keyframes cursorBlink {
   from { opacity: 1; }

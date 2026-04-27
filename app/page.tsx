@@ -18,6 +18,7 @@ import Contact from '@/components/Contact'
 import Footer from '@/components/Footer'
 import StructuredData from '@/components/StructuredData'
 import ClientTicker from '@/components/ClientTicker'
+import ScrollToHash from '@/components/ScrollToHash'
 
 const REVALIDATE = 10
 
@@ -65,6 +66,7 @@ export default async function Home() {
     <>
       <StructuredData settings={settings} gallery={gallery} />
       <main className="overflow-x-hidden">
+        <ScrollToHash />
         <Navigation settings={settings} />
         <Hero settings={settings} heroVideoUrls={heroVideoUrls} />
         <Gallery images={gallery} />
