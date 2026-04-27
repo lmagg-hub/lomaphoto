@@ -15,7 +15,7 @@ function getVideoId(url: string): string | null {
 
 function getEmbedUrl(url: string): string {
   const ytId = getVideoId(url)
-  if (ytId) return `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`
+  if (ytId) return `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0&controls=0&modestbranding=1&showinfo=0`
   const vimeo = url.match(/vimeo\.com\/(\d+)/)
   if (vimeo) return `https://player.vimeo.com/video/${vimeo[1]}?autoplay=1`
   return url
@@ -310,8 +310,10 @@ function VideoCarousel({ items }: { items: VideoItem[] }) {
 
 export default function Videography({ videos }: { videos: VideoProject[] }) {
   const items    = normalize(videos)
-  const featured = items.find(v => v.featured) ?? items[0]
-  const rest     = featured ? items.filter(v => v.id !== featured.id) : []
+  // Always use items[0] as the hero — the query is sorted by `order asc` in Sanity,
+  // so the lowest-order video is already first. Don't re-sort by `featured` flag here.
+  const featured = items[0] ?? null
+  const rest     = featured ? items.slice(1) : []
 
   return (
     <section id="videografie" className="py-24 md:py-32 bg-dark-100">

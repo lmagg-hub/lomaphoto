@@ -38,6 +38,7 @@ export interface VideoProject {
   videoUrl: string
   category: string
   featured: boolean
+  order?: number
   thumbnail?: SanityImage
 }
 

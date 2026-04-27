@@ -7,7 +7,7 @@ const csp = [
   "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://js.stripe.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
-  `img-src 'self' data: https://cdn.sanity.io https://${SANITY_PROJECT_ID}.api.sanity.io`,
+  `img-src 'self' data: https://cdn.sanity.io https://${SANITY_PROJECT_ID}.api.sanity.io https://img.youtube.com`,
   "media-src 'self' blob: data: https:",
   "frame-src https://js.stripe.com https://hooks.stripe.com https://www.youtube.com https://www.youtube-nocookie.com",
   `connect-src 'self' https://${SANITY_PROJECT_ID}.api.sanity.io https://${SANITY_PROJECT_ID}.apicdn.sanity.io wss://${SANITY_PROJECT_ID}.api.sanity.io https://www.google-analytics.com https://region1.google-analytics.com https://api.stripe.com`,
@@ -20,6 +20,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'cdn.sanity.io' },
       { protocol: 'https', hostname: 'picsum.photos' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'img.youtube.com' },
     ],
   },
 
